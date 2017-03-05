@@ -1,0 +1,11 @@
+#!/bin/sh
+#SERVICE='httpd'
+echo -e “Hi Man, please type the service: \c ”
+read SERVICE
+if ps ax | grep -v grep | grep $SERVICE > /dev/null
+then
+    echo "$SERVICE service running, everything is good"
+else
+    echo "$SERVICE is not running"
+#    echo "$SERVICE is not running!" | mail -s "$SERVICE down" root
+fi
