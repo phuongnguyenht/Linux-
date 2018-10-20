@@ -1,0 +1,8 @@
+Trên con cần backup chạy mấy lệnh:
+mkdir /backups
+tar cvpzf /backups/backup.tgz --exclude=/proc --exclude=/lost+found --exclude=/backups --exclude=/dev --exclude=/sys --exclude=/boot/grub --exclude=/etc/fstab --exclude=/etc/sysconfig/network-scripts/ --exclude=/etc/udev/rules.d/70-persistent-net.rules /
+scp backup.tgz root@10.84.70.105:/backups
+trên con cần restore thì chạy lệnh :  tar xvpfz /backups/backup.tgz -C /
+chạy xong sửa lại cái ifconfig với IP cần đặt là ok.
+
+
