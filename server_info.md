@@ -1,8 +1,9 @@
 ---------------------check serial server linux--------------------
-dmidecode -t system
-# dmidecode 2.12
-SMBIOS 2.8 present.
 ```
+dmidecode -t system
+dmidecode 2.12
+SMBIOS 2.8 present.
+
 Handle 0x0100, DMI type 1, 27 bytes
 System Information
         Manufacturer: HP
