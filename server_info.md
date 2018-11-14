@@ -20,14 +20,16 @@ System Boot Information
         Status: No errors detected
 ```
 --------------------Thong tin CPU ------------------------
-dmidecode -t processor | grep -i version
+
 ```
+dmidecode -t processor | grep -i version
         Version:  Intel(R) Xeon(R) CPU E5-2680 v2 @ 2.80GHz      
         Version:  Intel(R) Xeon(R) CPU E5-2680 v2 @ 2.80GHz      
 ```		
 --------Thong tin RAM -------------------------------------
-dmidecode --type 17 | more
+
 ```
+dmidecode --type 17 | more
 # dmidecode 2.12
 SMBIOS 2.8 present.
 
