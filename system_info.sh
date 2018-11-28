@@ -21,7 +21,9 @@ echo "----------------Show CPU info:--------------------------"
 cpuinfo=`dmidecode -t processor | grep -i version`
 echo -e ' \t' "$cpuinfo"
 echo -e ' \t' "So core of CPU:" $(cat /proc/cpuinfo | grep processor | wc -l)
-echo -e ' \t' "Show more info CPU"
+echo '        '
+
+echo "----------------Show more info CPU-----------------------"
 lscpu
 echo '        '
 
