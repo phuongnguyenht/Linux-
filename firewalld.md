@@ -1,13 +1,17 @@
 #   -- Note Sử dụng firewalld on centos 7 --
 
-
 1. Show rule active 
 
 ```
+-- kiểm tra firewall có running hay không 
+firewall-cmd --state
+-- show zone
 firewall-cmd --get-active-zones
-show rule trong zone default
+firewall-cmd --list-all-zones | less
+-- show zone default, rule trong zone default
+firewall-cmd --get-default-zone
 firewall-cmd --list-all
-show rule zone chỉ định
+-- show rule zone chỉ định
 firewall-cmd --zone="zone_name" --list-all
 
 ```
