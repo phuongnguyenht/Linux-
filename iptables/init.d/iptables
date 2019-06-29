@@ -1,0 +1,195 @@
+#!/bin/sh
+#
+#/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
+#* File Name : iptables
+#* Purpose :
+#* Creation Date : 24-05-2019
+#* Last Modified : 
+#* Created By : Hocnv - Email: hocnv2010@gmail.com
+#_._._._._._._._._._._._._._._._._._._._._.*/
+
+# Startup script to implement /etc/sysconfig/iptables pre-defined rules.
+
+IPTABLES=/sbin/iptables
+$IPTABLES -F
+$IPTABLES -F -t nat
+
+
+#/sbin/modprobe ip_conntrack
+#/sbin/modprobe ip_conntrack_ftp
+
+# Clear any existing firewall stuff before we start
+#$IPTABLES --flush
+#$IPTABLES -t nat --flush
+#$IPTABLES -t mangle --flush
+# turn on NAT (IP masquerading for outgoing packets)
+$IPTABLES -A POSTROUTING -t nat -o ens192 -j MASQUERADE
+$IPTABLES -A POSTROUTING -t nat -o ens224 -j MASQUERADE
+
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED -i ens192 -p icmp
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED -i ens192 -p tcp
+$IPTABLES -A INPUT -j ACCEPT -m state --state ESTABLISHED -i ens192 -p udp
+
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED -i ens224 -p icmp
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED -i ens224 -p tcp
+$IPTABLES -A INPUT -j ACCEPT -m state --state ESTABLISHED -i ens224 -p udp
+
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED -i lo -p icmp
+$IPTABLES -A INPUT -j ACCEPT -m state --state ESTABLISHED -i lo -p tcp
+$IPTABLES -A INPUT -j ACCEPT -m state --state ESTABLISHED -i lo -p udp
+
+## Allow 
+
+$IPTABLES -A INPUT  -p tcp --dport 22 -j ACCEPT
+$IPTABLES -A INPUT  -p tcp --dport 8161 -j ACCEPT
+$IPTABLES -A INPUT  -p tcp --dport 61616 -j ACCEPT
+
+#Keepalive
+$IPTABLES -I INPUT -i ens192 -d 224.0.0.0/8 -j ACCEPT
+$IPTABLES -I INPUT -p vrrp -j ACCEPT
+$IPTABLES -A INPUT -p 112 -i ens192 -j ACCEPT
+$IPTABLES -A OUTPUT -p 112 -o ens192 -j ACCEPT
+
+$IPTABLES -A FORWARD -i ens192 -j ACCEPT
+$IPTABLES -A FORWARD -o ens192 -j ACCEPT
+$IPTABLES -A FORWARD -i ens192 -j ACCEPT
+$IPTABLES -A FORWARD -o ens224 -j ACCEPT
+$IPTABLES -A FORWARD -i lo -j ACCEPT
+$IPTABLES -A FORWARD -o lo -j ACCEPT
+
+#$IPTABLES -t nat -A PREROUTING -p tcp -i bond0 -d 192.168.38.162 --dport 2250 -j DNAT --to 192.168.38.140:2250
+#$IPTABLES  -A FORWARD -p tcp -i bond0  -d 192.168.38.140 --dport 2250 -j ACCEPT
+
+$IPTABLES -t nat -A PREROUTING -p tcp -i ens224 -d 14.225.7.115 --dport 8161 -j DNAT --to 10.144.37.66:8161
+$IPTABLES  -A FORWARD -p tcp -i ens224  -d 10.144.37.66 --dport 8161 -j ACCEPT
+
+$IPTABLES -t nat -A PREROUTING -p tcp -i ens224 -d 14.225.7.115 --dport 61616 -j DNAT --to 10.144.37.66:61616
+$IPTABLES  -A FORWARD -p tcp -i ens224  -d 10.144.37.66 --dport 61616 -j ACCEPT
+
+# Open de dev login sau khi running se comment rule nay lai
+$IPTABLES -t nat -A PREROUTING -p tcp -i ens224 -d 14.225.7.115 --dport 3306 -j DNAT --to 10.144.37.69:3306
+$IPTABLES  -A FORWARD -p tcp -i ens224  -d 10.144.37.69 --dport 3306 -j ACCEPT
+
+#Allow for FTP vsftpd
+ALLOW_IP_FTP="127.0.0.1 localhost 10.144.37.64/26 10.144.37.66 10.144.37.67 10.144.37.68 10.144.37.69"
+for k in $ALLOW_IP_FTP; do
+$IPTABLES -A INPUT -s $k -p tcp -m tcp --dport 21 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+$IPTABLES -A INPUT -s $k -p tcp -m tcp --dport 20 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+$IPTABLES -A INPUT -s $k -p tcp -m tcp --sport 1024:65535 --dport 20:65535 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+$IPTABLES -A INPUT -s $k -p tcp -m state --state ESTABLISHED -j ACCEPT
+$IPTABLES -A INPUT -s $k -j REJECT --reject-with icmp-port-unreachable
+$IPTABLES -A OUTPUT -p tcp -m tcp --dport 21 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+$IPTABLES -A OUTPUT -p tcp -m tcp --dport 20 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+$IPTABLES -A OUTPUT -p tcp -m tcp --sport 1024:65535 --dport 20:65535 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+done
+
+
+## Chan list ip tu file:
+BLOCKED_IP="/opt/Scripts/ipblock"
+if [ -f $BLOCKED_IP ]; then
+        while read BLOCKED ; do
+                $IPTABLES -A INPUT -i ens192 -s $BLOCKED -j DROP
+                $IPTABLES -A INPUT -i ens224 -s $BLOCKED -j DROP
+                $IPTABLES -A OUTPUT -o ens192 -d $BLOCKED -j DROP
+                $IPTABLES -A OUTPUT -o ens224 -d $BLOCKED -j DROP
+
+        done < $BLOCKED_IP
+fi
+
+## Allow for NFS, Rpcbind
+AL_IP_NFS="127.0.0.1 localhost 10.144.37.64/26 10.144.37.66 10.144.37.67 10.144.37.68 10.144.37.69"
+for h in $AL_IP_NFS; do
+$IPTABLES -A INPUT -s $h -p tcp --dport 111 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p udp --dport 111 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p tcp --dport 2049 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p tcp --dport 892 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p udp --dport 892 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p tcp --dport 662 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p udp --dport 662 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p tcp --dport 2020 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p udp --dport 2020 -j ACCEPT
+done
+
+#Allow for NTP
+ALLOW_IP_NTP="127.0.0.1 localhost 10.144.37.64/26 10.144.37.66 10.144.37.67 10.144.37.68 10.144.37.69"
+for k in $ALLOW_IP_NTP; do
+$IPTABLES -A INPUT -s $h -p tcp --dport 123 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p udp --dport 123 -j ACCEPT
+done
+
+## Allow for cluster Mariadb
+AL_IP_Mariadb="127.0.0.1 localhost 10.144.37.64/26 10.144.37.66 10.144.37.67 10.144.37.68 10.144.37.69"
+for h in $AL_IP_Mariadb; do
+$IPTABLES -A INPUT -s $h -p tcp --dport 3306 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p tcp --dport 4444 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p tcp --dport 4567 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p tcp --dport 4568 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p udp --dport 4567 -j ACCEPT
+done
+
+## Open ssh cho con app02 
+$IPTABLES -t nat -A PREROUTING -p tcp -i ens224 -d 14.225.7.115 --dport 2251 -j DNAT --to 10.144.37.67:22
+$IPTABLES  -A FORWARD -p tcp -i ens224  -d 10.144.37.67 --dport 22 -j ACCEPT
+
+## Open ssh cho con mediatg
+$IPTABLES -t nat -A PREROUTING -p tcp -i ens224 -d 14.225.7.115 --dport 2252 -j DNAT --to 10.144.37.68:22
+$IPTABLES  -A FORWARD -p tcp -i ens224  -d 10.144.37.68 --dport 22 -j ACCEPT
+
+#Allow access SSH to Server
+ALLOW_IP_SSH="127.0.0.1 localhost 113.190.240.238 123.30.23.176/28 10.144.37.64/26 10.144.37.66 10.144.37.67 10.144.37.68 10.144.37.69 "
+for i in $ALLOW_IP_SSH; do
+$IPTABLES -A INPUT -s $i -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+$IPTABLES -A INPUT -s $i -p tcp -m state --state NEW -m tcp --dport 2250 -j ACCEPT
+$IPTABLES -A INPUT -s $i -p tcp -m state --state NEW -m tcp --dport 2251 -j ACCEPT
+$IPTABLES -A INPUT -s $i -p tcp -m state --state NEW -m tcp --dport 2252 -j ACCEPT
+done
+
+#Allow dong bo Thoi gian
+ALLOW_IP_NTPD="127.0.0.1 localhost 10.144.37.64/26 10.144.37.66 10.144.37.67 10.144.37.68 10.144.37.69"
+for i in $ALLOW_IP_NTPD; do
+$IPTABLES -A INPUT -s $i -p udp -m state --state NEW -m udp --dport 123 -j ACCEPT
+done
+
+## Allow for PRTG
+AL_IP_PRTG="127.0.0.1 localhost 10.144.37.64/26 10.144.37.66 10.144.37.67 10.144.37.68 10.144.37.69"
+for p in $AL_IP_PRTG; do
+$IPTABLES -A INPUT -s $p -p udp --dport 161 -j ACCEPT
+$IPTABLES -A INPUT -s $p -p udp --dport 162 -j ACCEPT
+$IPTABLES -I INPUT -s $p -p udp -m udp --dport 161 -j ACCEPT
+$IPTABLES -I INPUT -s $p -p udp -m udp --dport 162 -j ACCEPT
+$IPTABLES -A INPUT -s $p -j LOG --log-prefix "HocNV_PRGT: " --log-level 7
+done
+
+#Deny SYN FLOOD
+$IPTABLES -N syn-flood
+$IPTABLES -A syn-flood -m limit --limit 100/second --limit-burst 150 -j RETURN
+$IPTABLES -A syn-flood -j LOG --log-prefix "SYN flood: "
+$IPTABLES -A syn-flood -j DROP
+
+$IPTABLES -A INPUT -i ens192 -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
+$IPTABLES -A INPUT -i ens192 -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
+$IPTABLES -A INPUT -i ens192 -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
+
+$IPTABLES -A INPUT -i ens224 -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
+$IPTABLES -A INPUT -i ens224 -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
+$IPTABLES -A INPUT -i ens224 -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
+
+
+$IPTABLES -A INPUT -i lo -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
+$IPTABLES -A INPUT -i lo -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
+$IPTABLES -A INPUT -i lo -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
+
+#Allow Ping echo
+$IPTABLES -A INPUT -p icmp -j ACCEPT
+#$IPTABLES -A INPUT -p icmp -j DROP
+#$IPTABLES -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT
+#$IPTABLES -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
+#$IPTABLES -A INPUT -m limit --limit 3/second --limit-burst 5 -i ! lo -j  LOG
+#$IPTABLES -A INPUT -i ! lo -j DROP
+
+$IPTABLES -A INPUT -j REJECT --reject-with icmp-host-prohibited
+$IPTABLES -A FORWARD -j REJECT --reject-with icmp-host-prohibited
+#$IPTABLES COMMIT
+

@@ -1,0 +1,44 @@
+#!/bin/bash
+#Author: Hocnv
+
+#########################
+
+echo Su dung: $1
+case "$1" in
+  
+  start)
+        /etc/init.d/iptables
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ]
+        then
+                echo Start successfull! Kiem tra rule: /sbin/iptables -L
+        else
+                echo Fail. Check again!!!
+        fi
+
+        ;;
+
+  stop)
+        /usr/libexec/iptables/_iptables.init stop
+        echo Kiem tra lai /sbin/iptables -L
+        ;;
+  restart)
+        /usr/libexec/iptables/_iptables.init stop
+        /etc/init.d/iptables
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ]
+        then
+                echo Restart successfull! Kiem tra lai /sbin/iptables -L
+        else
+                echo Fail. Check again!!! Kiem tra lai /sbin/iptables -L
+        fi
+        ;;
+  status)
+        /sbin/iptables -L
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart}"
+        exit 2
+esac
+
+exit 0
