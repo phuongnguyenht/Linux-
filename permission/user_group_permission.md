@@ -47,7 +47,9 @@ ALIAS
 
 Bên trên là lý thuyết, chúng ta đã biết về cú pháp của các rule. Giờ chúng ta thử tạo rule cho riêng mình xem sao :). Nhưng trước khi tạo rule, chúng ta tìm hiểu một chút về Alias cái đã.
 Alias giúp chúng ta cấu trúc lại các rule rõ ràng hơn thông qua việc group các dữ liệu lại với nhau.
+```
 Ví dụ
+```
 root    ALL=(ALL)       ALL
 phuongnt       ALL=NOPASSWD: /bin/cat *, /usr/bin/tail *, /sbin/service kamailio status, /sbin/service mysqld status, /sbin/service ejabberd status, /sbin/service httpd status, /sbin/service tomcat status, /sbin/service ntpd status, /usr/local/sbin/kamctl online, /usr/local/sbin/kamcmd core.shmmem m, /bin/netstat, /tmp/monitor/*, /home/phuongnt/*, /tmp/monitor/voice_platform_monitor/*, /bin/su, /sbin/service snmpd *, /var/prtg/scripts/*, /bin/vi /etc/snmp/*, /bin/vi snmpd.conf
 ```
