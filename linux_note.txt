@@ -1,0 +1,180 @@
+chkconfig --list
+/etc/init.d/bluetooth stop
+chkconfig bluetooth off
+/etc/init.d/cups stop
+chkconfig cups off
+/etc/init.d/nfslock stop
+chkconfig nfslock off
+/etc/init.d/portmap stop
+chkconfig portmap off
+/etc/init.d/sendmail stop
+chkconfig sendmail off
+
+clear
+vi /etc/ssh/sshd_config
+/etc/init.d/sshd restart
+vi /etc/ssh/sshd_config
+/etc/init.d/sshd restart
+/etc/init.d/sshd restart
+exit
+exit
+ls
+vi /etc/ssh/sshd_config
+service sshd restart
+ifconfig
+ping google.com.vn -t
+ping google.com.vn
+/etc/init.d/sshd restart
+vi /etc/ssh/sshd_config
+/etc/init.d/sshd restart
+chkconfig --list
+vi /etc/ssh/sshd_config
+/etc/init.d/sshd restart
+chkconfig --list
+vi /etc/ssh/sshd_config
+/etc/init.d/sshd restart
+clear
+cat /etc/redhat-release
+uname -a
+ps -ef
+df -kh
+top
+cat /proc/cpuinfo
+ps -ef
+df -kh
+chkconfig --list |grep :on
+/sbin/chkconfig --levels 0123456 yum-updatesd off
+/sbin/chkconfig --levels 0123456 rpcidmapd off
+/sbin/chkconfig --levels 0123456 rpcgssd off
+/sbin/chkconfig --levels 0123456 rhnsd off
+/sbin/chkconfig --levels 0123456 readahead_later off
+/sbin/chkconfig --levels 0123456 readahead_early off
+/sbin/chkconfig --levels 0123456 pcscd off
+/sbin/chkconfig --levels 0123456 mcstrans off
+/sbin/chkconfig --levels 0123456 lvm2-monitor off
+/sbin/chkconfig --levels 0123456 kudzu off
+/sbin/chkconfig --levels 0123456 ip6tables off
+/sbin/chkconfig --levels 0123456 hplip off
+/sbin/chkconfig --levels 0123456 hidd off
+/sbin/chkconfig --levels 0123456 cpuspeed off
+/sbin/chkconfig --levels 0123456 avahi-daemon off
+/sbin/chkconfig --levels 0123456 anacron off
+/sbin/chkconfig --levels 0123456 atd off
+chkconfig --list |grep :on
+ls
+mv iptables iptables.stop
+cp /etc/sysctl.conf /etc/sysctl.conf.bak
+>/etc/sysctl.conf
+vi /etc/sysctl.conf:
+Noi dung file nay:
+@@@@@@@@@@@@@@@@@@@@@@@@@@
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.conf.default.accept_source_route = 0
+kernel.sysrq = 0
+net.ipv4.tcp_syncookies = 1
+kernel.msgmnb = 65536
+kernel.msgmax = 65536
+kernel.shmmax = 4294967295
+kernel.shmall = 2097152
+kernel.shmmni =4096
+kernel.msgmni = 2878
+kernel.sem = 256 32000 100 142
+#fs.file-max = 403504
+fs.file-max = 5049800
+kernel.core_uses_pid = 1
+net.ipv4.ip_local_port_range = 1024 65000
+
+#net.core.rmem_default = 16777216
+net.core.rmem_max = 16777216
+#net.core.wmem_default = 16777216
+net.core.wmem_max = 16777216
+
+net.ipv4.tcp_rmem = 4096 87380 16777216
+net.ipv4.tcp_wmem = 4096 65536 16777216
+
+net.core.rmem_default=262144
+net.core.wmem_default=262144
+net.ipv4.route.flush=1
+
+net.ipv4.tcp_rmem = 4096 87380 16777216
+net.ipv4.tcp_wmem = 4096 65536 16777216
+
+net.core.rmem_default=262144
+net.core.wmem_default=262144
+net.ipv4.route.flush=1
+
+
+net.ipv4.tcp_max_syn_backlog=16384
+net.ipv4.tcp_fin_timeout = 20
+net.core.netdev_max_backlog = 2500
+
+#0
+net.ipv4.tcp_tw_recycle=0
+net.ipv4.tcp_tw_reuse=0
+#180000
+net.ipv4.tcp_max_tw_buckets=180000
+
+#net.ipv4.ip_conntrack_max = 6553600
+#net.ipv4.netfilter.ip_conntrack_max = 6553600
+
+vm.min_free_kbytes = 204800
+vm.page-cluster = 20
+
+net.ipv4.tcp_rfc1337 = 1
+net.ipv4.tcp_keepalive_time = 300
+net.ipv4.tcp_max_orphans = 1000
+
+net.ipv4.tcp_mem=3093984 4125312 6187968
+net.ipv4.ip_forward = 1
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+sysctl -p
+vi /etc/hosts
+uname -ar
+cat /etc/redhat-release
+/sbin/ifconfig
+passwd root
+cat /etc/passwd|grep bash
+who
+userdel hts
+cat /etc/passwd|grep bash
+who -a
+kill -9 5340
+who -a
+who
+ps -ef
+cat /etc/passwd
+useradd rescue
+passwd rescue
+visudo
+useradd hocnv
+passwd hocnv
+ps -ef
+vi /etc/passwd
+vi iptables.stop
+vi iptables
+vi iptables
+/sbin/ifcofnig
+/sbin/ifconfig
+/sbin/ifcofnig
+vi iptables
+chmod u+x iptables
+./iptables
+ps -ef
+vi /etc/security/limits.conf
+ps -ef
+/sbin/ifconfig
+hostname gosystem
+vi /etc/hosts
+nestat -rn
+netstat -rn
+vi /etc/sysconfig/network
+cd /etc/sysconfig/network
+cd /etc/sysconfig/network-scripts/
+ls
+vi ifcfg-eth0
+ps -ef
+netstat -rn
+vi /etc/hosts.allow
+vi /etc/hosts.deny

@@ -1,0 +1,169 @@
+#!/bin/sh
+#
+#/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
+#* File Name : iptables
+#* Purpose :
+#* Creation Date : 09-07-2019
+#* Last Modified : 
+#* Created By : Hocnv - Email: hocnv2010@gmail.com
+#* Edited By: PhuongNT 
+#_._._._._._._._._._._._._._._._._._._._._.*/
+
+# Startup script to implement /etc/sysconfig/iptables pre-defined rules.
+
+IPTABLES=/sbin/iptables
+$IPTABLES -F
+$IPTABLES -F -t nat
+
+$IPTABLES -P INPUT DROP
+$IPTABLES -P OUTPUT DROP
+$IPTABLES -P FORWARD DROP
+
+#/sbin/modprobe ip_conntrack
+#/sbin/modprobe ip_conntrack_ftp
+
+# Clear any existing firewall stuff before we start
+#$IPTABLES --flush
+#$IPTABLES -t nat --flush
+#$IPTABLES -t mangle --flush
+# turn on NAT (IP masquerading for outgoing packets)
+$IPTABLES -A POSTROUTING -t nat -o ens160 -j MASQUERADE
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED,RELATED -i ens160 -p icmp
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED,RELATED -i ens160 -p tcp
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED,RELATED -i ens160 -p udp
+
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED,RELATED -i lo -p icmp
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED,RELATED -i lo -p tcp
+$IPTABLES -A INPUT -j ACCEPT -m state --state NEW,ESTABLISHED,RELATED -i lo -p udp
+
+#$IPTABLES -A OUTPUT -o ens160 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+$IPTABLES -A OUTPUT -o ens160 -m state --state ESTABLISHED,RELATED -j ACCEPT
+## Allow 
+
+$IPTABLES -A INPUT  -p tcp --dport 80 -j ACCEPT
+$IPTABLES -A INPUT  -p udp --dport 80 -j ACCEPT
+$IPTABLES -A INPUT  -p tcp --dport 443 -j ACCEPT
+$IPTABLES -A INPUT  -p udp --dport 443 -j ACCEPT
+
+#$IPTABLES -A OUTPUT  -p tcp --dport 8687 -j ACCEPT
+#$IPTABLES -A OUTPUT  -p udp --dport 8687 -j ACCEPT
+#$IPTABLES -A OUTPUT  -p tcp --dport 80 -j ACCEPT
+#$IPTABLES -A OUTPUT  -p udp --dport 80 -j ACCEPT
+#$IPTABLES -A OUTPUT  -p tcp --dport 443 -j ACCEPT
+
+
+#$IPTABLES -A OUTPUT  -p tcp --dport 3306 -j ACCEPT
+#$IPTABLES -A OUTPUT  -p tcp --dport 9080 -j ACCEPT
+
+#$IPTABLES -A INPUT  -p tcp --dport 8082 -j ACCEPT
+#$IPTABLES -A INPUT  -p tcp --dport 8180 -j ACCEPT
+
+#Keepalive
+$IPTABLES -I INPUT -i ens160 -d 224.0.0.0/8 -j ACCEPT
+$IPTABLES -I INPUT -p vrrp -j ACCEPT
+$IPTABLES -A INPUT -p 112 -i ens160 -j ACCEPT
+$IPTABLES -A OUTPUT -p 112 -o ens160 -j ACCEPT
+
+$IPTABLES -A FORWARD -i ens160 -j ACCEPT
+$IPTABLES -A FORWARD -o ens160 -j ACCEPT
+$IPTABLES -A FORWARD -i lo -j ACCEPT
+$IPTABLES -A FORWARD -o lo -j ACCEPT
+
+
+## Chan list ip tu file:
+BLOCKED_IP="/opt/Scripts/ipblock"
+if [ -f $BLOCKED_IP ]; then
+        while read BLOCKED ; do
+                $IPTABLES -A INPUT -i ens160 -s $BLOCKED -j DROP
+                $IPTABLES -A OUTPUT -o ens160 -d $BLOCKED -j DROP
+        done < $BLOCKED_IP
+fi
+
+#Allow Output for connection
+ALLOW_OUT_iPAY="127.0.0.1 localhost 124.158.10.71 124.158.10.72 202.58.105.202"
+for k1 in $ALLOW_OUT_iPAY; do
+$IPTABLES -A OUTPUT -d $k1 -p tcp --dport 8687 -j ACCEPT
+$IPTABLES -A OUTPUT -d $k1 -p udp --dport 8687 -j ACCEPT
+$IPTABLES -A OUTPUT -d $k1 -p tcp --dport 80 -j ACCEPT
+$IPTABLES -A OUTPUT -d $k1 -p udp --dport 80 -j ACCEPT
+$IPTABLES -A OUTPUT -d $k1 -p tcp --dport 443 -j ACCEPT
+done
+
+#Allow Output for connection
+ALLOW_OUT_BRN="127.0.0.1 localhost 10.84.73.15 10.84.73.16 10.84.73.17 10.84.76.39"
+for k2 in $ALLOW_OUT_BRN; do
+$IPTABLES -A OUTPUT -d $k2 -p tcp --dport 3306 -j ACCEPT
+$IPTABLES -A OUTPUT -d $k2 -p tcp --dport 9080 -j ACCEPT
+
+done
+
+#Allow for RPC share
+ALLOW_IP_NTP="127.0.0.1 localhost 10.84.73.85"
+for k in $ALLOW_IP_NTP; do
+$IPTABLES -A INPUT -s $k -p udp --dport 123 -j ACCEPT
+$IPTABLES -A INPUT -s $k -p udp -m state --state NEW -m udp --dport 123 -j ACCEPT
+
+done
+
+#Allow for NTP
+ALLOW_IP_NTP="127.0.0.1 localhost 10.84.73.85"
+for k in $ALLOW_IP_NTP; do
+$IPTABLES -A INPUT -s $k -p udp --dport 123 -j ACCEPT
+$IPTABLES -A INPUT -s $k -p udp -m state --state NEW -m udp --dport 123 -j ACCEPT
+
+done
+
+## Allow for cluster Mariadb
+AL_IP_Mariadb="127.0.0.1 localhost 10.84.76.0/24 10.84.76.39"
+for h in $AL_IP_Mariadb; do
+$IPTABLES -A INPUT -s $h -p tcp --dport 3306 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p tcp --dport 4444 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p tcp --dport 4567 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p tcp --dport 4568 -j ACCEPT
+$IPTABLES -A INPUT -s $h -p udp --dport 4567 -j ACCEPT
+done
+
+#Allow access SSH to Server
+ALLOW_IP_SSH="127.0.0.1 localhost 10.84.73.0/24 10.84.10.0/24 10.84.5.0/24 113.190.240.238 123.30.23.176/28 "
+for i in $ALLOW_IP_SSH; do
+$IPTABLES -A INPUT -s $i -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+done
+
+
+## Allow for PRTG
+AL_IP_PRTG="127.0.0.1 localhost 10.84.73.0/24 "
+for p in $AL_IP_PRTG; do
+$IPTABLES -A INPUT -s $p -p udp --dport 161 -j ACCEPT
+$IPTABLES -I INPUT -s $p -p udp -m udp --dport 161 -j ACCEPT
+$IPTABLES -A INPUT -s $p -j LOG --log-prefix "HocNV_PRGT: " --log-level 7
+done
+
+#Deny SYN FLOOD
+$IPTABLES -N syn-flood
+$IPTABLES -A syn-flood -m limit --limit 100/second --limit-burst 150 -j RETURN
+$IPTABLES -A syn-flood -j LOG --log-prefix "SYN flood: "
+$IPTABLES -A syn-flood -j DROP
+
+$IPTABLES -A INPUT -i ens160 -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
+$IPTABLES -A INPUT -i ens160 -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
+$IPTABLES -A INPUT -i ens160 -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
+
+$IPTABLES -A INPUT -i lo -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
+$IPTABLES -A INPUT -i lo -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
+$IPTABLES -A INPUT -i lo -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
+
+#Allow Ping echo
+$IPTABLES -A INPUT -p icmp -j ACCEPT
+#$IPTABLES -A INPUT -p icmp -j DROP
+#$IPTABLES -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT
+#$IPTABLES -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
+#$IPTABLES -A INPUT -m limit --limit 3/second --limit-burst 5 -i ! lo -j  LOG
+#$IPTABLES -A INPUT -i ! lo -j DROP
+
+$IPTABLES -A INPUT -j REJECT --reject-with icmp-host-prohibited
+$IPTABLES -A FORWARD -j REJECT --reject-with icmp-host-prohibited
+#$IPTABLES COMMIT
+
+
