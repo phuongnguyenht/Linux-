@@ -12,6 +12,7 @@ useradd -g cartoons tom
 useradd -g cartoons spike
 
 Example: useradd -m -d /opt/data/ -s /bin/bash -u 1001 -g 1001 data 
+echo "nopass" | passwd data --stdin
 
 2. Group
 ```
@@ -49,6 +50,10 @@ Bên trên là lý thuyết, chúng ta đã biết về cú pháp của các rul
 Alias giúp chúng ta cấu trúc lại các rule rõ ràng hơn thông qua việc group các dữ liệu lại với nhau.
 ```
 4.Ví dụ
+```
+Cmnd_Alias ADMIN_CMDS = /bin/systemctl start nginx,/bin/systemctl stop nginx,/bin/systemctl restart nginx,/bin/systemctl status nginx
+%admin ALL=(ALL) NOPASSWD: ADMIN_CMDS
+```
 ```
 root    ALL=(ALL)       ALL
 phuongnt       ALL=NOPASSWD: /bin/cat *, /usr/bin/tail *, /sbin/service kamailio status, /sbin/service mysqld status, /sbin/service ejabberd status, /sbin/service httpd status, /sbin/service tomcat status, /sbin/service ntpd status, /usr/local/sbin/kamctl online, /usr/local/sbin/kamcmd core.shmmem m, /bin/netstat, /tmp/monitor/*, /home/phuongnt/*, /tmp/monitor/voice_platform_monitor/*, /bin/su, /sbin/service snmpd *, /var/prtg/scripts/*, /bin/vi /etc/snmp/*, /bin/vi snmpd.conf

@@ -1,0 +1,23 @@
+Thực hiện cấu hình ghi log cho việc sử dụng SFTP
+
+B1. Cấu hình ghi log cho WinSCP (SFTP)
+vim /etc/ssh/sshd_config
+Subsystem       sftp    /usr/libexec/openssh/sftp-server
+=> sua:
+Subsystem       sftp    /usr/libexec/openssh/sftp-server -l INFO -f AUTH
+
+B2. Cấu hình thêm log và rotatelog
+
+vim /etc/rsyslog.conf
+=> Them dong:
+auth.*    /var/log/system.log
+
+vim /etc/logrotate.d/syslog
+
+==> Thêm dòng:
+/var/log/system.log
+
+
+B3. Resart services
+	service sshd restart
+	systemctl restart rsyslog

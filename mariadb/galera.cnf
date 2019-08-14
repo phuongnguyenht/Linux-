@@ -1,0 +1,24 @@
+[mysqld]
+binlog_format=ROW
+default-storage-engine=innodb
+innodb_autoinc_lock_mode=2
+bind-address=0.0.0.0
+
+# Galera Provider Configuration
+wsrep_on=ON
+wsrep_provider=/usr/lib64/galera/libgalera_smm.so
+
+# Galera Cluster Configuration 
+wsrep_cluster_name="ClusterName"
+wsrep_cluster_address="gcomm://10.144.40.66,10.144.40.67"
+
+# Galera Synchronization Configuration
+wsrep_sst_method=rsync
+
+# Galera Node Configuration
+wsrep_node_address="10.144.40.66"
+wsrep_node_name="app01"
+
+
+# MYISAM REPLICATION SUPPORT #
+#wsrep_replicate_myisam         = ON

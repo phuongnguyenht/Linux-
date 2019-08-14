@@ -1,0 +1,23 @@
+Ghi log bash for all user in Linux
+
+B1. Gõ lệnh: sudo -e /etc/bashrc 
+Thêm dòng sau vào cuối file:
+export PROMPT_COMMAND='RETRN_VAL=$?;logger -p local6.debug "$(whoami) [$$]: $SSH_CONNECTION: $(history 1 | sed "s/^[ ]*[0-9]\+[ ]*//" ) [$RETRN_VAL]"'
+
+hoặc:
+export PROMPT_COMMAND='history -a >(logger -p local2.info -t "$USER[$PWD] $SSH_CONNECTION")'
+
+B2. Gõ lệnh: sudo -e /etc/rsyslog.d/bash.conf
+Thêm dòng sau:
+	local6.*    /var/log/system.log
+Hoặc:
+	local2.*    /var/log/system.log
+
+B3. Gõ lệnh: sudo -e /etc/logrotate.d/syslog
+Thêm dòng sau:
+	/var/log/system.log
+
+B4. Resart rsyslog
+	sudo service rsyslog restart
+	
+	systemctl restart rsyslog
