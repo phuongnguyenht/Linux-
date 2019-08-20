@@ -1,0 +1,42 @@
+Server 01 MASTER
+Server 02 BACKUP
+
+Server 01
+vrrp_script chk_nginx {
+  script "killall -0 nginx"
+  interval 2
+  weight 2
+}
+
+vrrp_instance VI_1 {
+  interface eno16777736
+  state MASTER
+  virtual_router_id 50
+  priority 103
+  virtual_ipaddress {
+    192.168.12.135
+  }
+  track_script {
+    chk_nginx
+  }
+}
+
+vrrp_script chk_nginx {
+  script "killall -0 nginx"
+  interval 2
+  weight 2
+}
+
+Server 02
+vrrp_instance VI_1 {
+  interface eno16777736
+  state BACKUP
+  virtual_router_id 50
+  priority 102
+  virtual_ipaddress {
+    192.168.12.135
+  }
+  track_script {
+    chk_nginx
+  }
+}
