@@ -1,0 +1,86 @@
+Thông tin:
+192.168.12.132	app01
+192.168.12.134	app02
+database 		Campaign
+
+app01
+# bind-address          = 127.0.0.1
+server-id               = 61
+report_host             = app01
+log_bin                 = /var/lib/mysql/mariadb-bin
+log_bin_index           = /var/lib/mysql/mariadb-bin.index
+relay_log               = /var/lib/mysql/relay-bin
+relay_log_index         = /var/lib/mysql/relay-bin.index
+# replicate-do-db       = testdb
+binlog-do-db			= Campaign
+auto_increment_increment = 2
+auto_increment_offset = 1
+
+app02
+# bind-address          = 127.0.0.1
+server-id               = 62
+report_host             = app02
+log_bin                 = /var/lib/mysql/mariadb-bin
+log_bin_index           = /var/lib/mysql/mariadb-bin.index
+relay_log               = /var/lib/mysql/relay-bin
+relay_log_index         = /var/lib/mysql/relay-bin.index
+# replicate-do-db       = testdb
+binlog-do-db			= Campaign
+auto_increment_increment = 2
+auto_increment_offset = 2
+
+app01
+MariaDB [(none)]> create user 'replusr'@'%' identified by 'P4SSWORD';
+MariaDB [(none)]> grant replication slave on *.* to 'replusr'@'%';
+MariaDB [(none)]> flush privileges;
+MariaDB [(none)]> use Campaign;
+MariaDB [(none)]> FLUSH TABLES WITH READ LOCK;
+MariaDB [(none)]> exit;
+
+app02
+MariaDB [(none)]> create user 'replusr'@'%' identified by 'P4SSWORD';
+MariaDB [(none)]> grant replication slave on *.* to 'replusr'@'%';
+MariaDB [(none)]> flush privileges;
+MariaDB [(none)]> show master status
+    -> ;
++--------------------+----------+--------------+------------------+
+| File               | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++--------------------+----------+--------------+------------------+
+| mariadb-bin.000001 |      566 |              |                  |
++--------------------+----------+--------------+------------------+
+1 row in set (0.00 sec)
+
+MariaDB [(none)]>  STOP SLAVE;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+MariaDB [(none)]> CHANGE MASTER TO MASTER_HOST='app01', MASTER_USER='replusr', MASTER_PASSWORD='P4SSWORD', MASTER_LOG_FILE='mariadb-bin.000001', MASTER_LOG_POS=658;
+Query OK, 0 rows affected (0.00 sec)
+
+MariaDB [(none)]> START SLAVE;
+Query OK, 0 rows affected (0.00 sec)
+
+app01:
+MariaDB [testdb]> show master status;
++--------------------+----------+--------------+------------------+
+| File               | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++--------------------+----------+--------------+------------------+
+| mariadb-bin.000001 |      658 |              |                  |
++--------------------+----------+--------------+------------------+
+1 row in set (0.00 sec)
+
+
+MariaDB [(none)]>  STOP SLAVE;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+MariaDB [(none)]> CHANGE MASTER TO MASTER_HOST='app02', MASTER_USER='replusr', MASTER_PASSWORD='P4SSWORD', MASTER_LOG_FILE='mariadb-bin.000002', MASTER_LOG_POS=566;
+
+MariaDB [(none)]> START SLAVE;
+Query OK, 0 rows affected (0.00 sec)
+
+Tren ca 2 node
+MariaDB [(none)]> SHOW SLAVE STATUS\G
+
+MariaDB [(none)]> use Campaign;
+MariaDB [(none)]> UNLOCK TABLES;;
+MariaDB [(none)]> exit;
+CREATE TABLE users (id INT AUTO_INCREMENT, name VARCHAR(30),datum TIMESTAMP DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(id));
