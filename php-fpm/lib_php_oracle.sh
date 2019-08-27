@@ -52,3 +52,6 @@ service php-fpm restart
 -----------------------Check install php-oci-----------------------
 [root@cms01 ~]# rpm -qa | grep oci
 php-oci8-7.2.21-1.el6.remi.x86_64
+
+Tham khao: https://koscek.wordpress.com/2018/11/01/setup-pdo_oci-oci8-in-centos-6-10-with-php-7-2/
+https://shiki.me/blog/installing-pdo_oci-and-oci8-php-extensions-on-centos-6-4-64bit

@@ -1,7 +1,14 @@
 MariaDB Installation (Version 10.1.21) via RPMs on CentOS 7
 
+rpm -qa | grep mariadb
+then remove the mariadb 5.5 packages using (changing to your versions):
+
+rpm -e --nodeps "mariadb-libs-5.5.56-2.el7.x86_64"
+rpm -e --nodeps "mariadb-server-5.5.56-2.el7.x86_64"
+rpm -e --nodeps "mariadb-5.5.56-2.el7.x86_64"
 
 Các gói cần cài đặt:
+https://rpms.southbridge.ru/rhel7/mariadb-10.1/x86_64/rpms/
 
 jemalloc-3.6.0-1.el7.x86_64.rpm
 MariaDB-10.1.21-centos7-x86_64-client.rpm
@@ -10,13 +17,22 @@ galera-25.3.19-1.rhel7.el7.centos.x86_64.rpm
 jemalloc-devel-3.6.0-1.el7.x86_64.rpm
 MariaDB-10.1.21-centos7-x86_64-common.rpm
 MariaDB-10.1.21-centos7-x86_64-server.rpm
+boost-program-options-1.53.0-27.el7.x86_64.rpm
 
 Các bước cài đặt:
+
+mkdir /media/Centos 
+mount -t iso9660 -o loop /opt/CentOS-7-x86_64-DVD-1810.iso /media/Centos
+yum --disablerepo=\* --enablerepo=c7-media install rsync nmap lsof perl-DBI nc
 
 1) First install all of the dependencies needed. Its easy to do this via YUM packages: yum install rsync nmap lsof perl-DBI nc
 2) rpm -ivh jemalloc-3.6.0-1.el7.x86_64.rpm
 3) rpm -ivh jemalloc-devel-3.6.0-1.el7.x86_64.rpm
-4) rpm -ivh MariaDB-10.1.21-centos7-x86_64-common.rpm MariaDB-10.1.21-centos7-x86_64-compat.rpm MariaDB-10.1.21-centos7-x86_64-client.rpm galera-25.3.19-1.rhel7.el7.centos.x86_64.rpm MariaDB-10.1.21-centos7-x86_64-server.rpm
+4) rpm -ivh MariaDB-10.1.21-centos7-x86_64-common.rpm 
+rpm -ivh MariaDB-10.1.21-centos7-x86_64-compat.rpm 
+rpm -ivh MariaDB-10.1.21-centos7-x86_64-client.rpm 
+rpm -ivh galera-25.3.19-1.rhel7.el7.centos.x86_64.rpm 
+rpm -ivh MariaDB-10.1.21-centos7-x86_64-server.rpm
 While installing MariaDB-10.1.21-centos7-x86_64-common.rpm there might be a conflict with older MariaDB packages. we need to remove them and install the original rpm again.
 
 Here is the error message for dependencies:
@@ -56,3 +72,11 @@ Updating / installing...
 After step 4, the installation will be completed. The last step will be to run mysql_secure_installation to secure the production server by dis allowing remote login for root, creating root password and removing the test database.
 
 5) mysql_secure_installation
+
+
+Fatal error: Can't open and lock privilege tables: Table 'mysql.user' doesn't exist
+Centos 7
+Fix:
+mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+[root@app01 my.cnf.d]# systemctl start mariadb
+[root@app01 my.cnf.d]# mysql_secure_installation

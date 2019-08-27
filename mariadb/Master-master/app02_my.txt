@@ -1,0 +1,31 @@
+# chua co phan tunning
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+# Settings user and group are ignored when systemd is used.
+# If you need to run mysqld under a different user or group,
+# customize your systemd unit file for mariadb according to the
+# instructions in http://fedoraproject.org/wiki/Systemd
+
+# bind-address          = 127.0.0.1
+server-id               = 62
+report_host             = app02
+log_bin                 = /var/lib/mysql/mariadb-bin
+log_bin_index           = /var/lib/mysql/mariadb-bin.index
+relay_log               = /var/lib/mysql/relay-bin
+relay_log_index         = /var/lib/mysql/relay-bin.index
+# replicate-do-db       = testdb
+binlog-do-db            = smartgate
+auto_increment_increment = 5
+auto_increment_offset = 2
+
+[mysqld_safe]
+log-error=/var/log/mariadb/mariadb.log
+pid-file=/var/run/mariadb/mariadb.pid
+
+#
+# include all files from the config directory
+#
+!includedir /etc/my.cnf.d

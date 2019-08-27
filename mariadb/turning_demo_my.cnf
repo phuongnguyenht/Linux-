@@ -1,0 +1,152 @@
+
+---------------------------------Install mariadb on Centos 7---------------------------------
+vi /etc/yum.repos.d/MariaDB.repo
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.1/centos7-amd64
+gpgkey=http://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+
+yum install mariadb-server mariadb-client -y
+
+Sau khi đã cài đặt xong MariaDB-server. Chay mysql_secure_installation để đặt mật khẩu cho Root và loại bỏ một số nguy cơ bảo mật.
+mysql_secure_installation
+
+mkdir -p /var/lib/mysql/data/tablespace
+mkdir -p /var/lib/mysql/tmp
+mkdir -p /var/lib/mysql/logs/iblogs
+mkdir -p /var/lib/mysql/logs/binlog
+cd /var/lib && chown -R mysql.mysql mysql
+
+vi /etc/my.cnf
+[mysqld]
+datadir                 =/var/lib/mysql
+socket                  =/var/lib/mysql/mysql.sock
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links          =0
+bind_address            = 0.0.0.0
+pid_file                = /var/lib/mysql/mysql.pid
+
+
+user=mysql
+
+key_buffer_size=384M
+max_allowed_packet=16777216
+max_connections=5000
+max_user_connections=2000
+read_buffer_size=8M
+sort_buffer_size=512K
+sort_buffer=8M
+read_buffer_size=156K
+read_rnd_buffer_size=512K
+table_cache=4096
+thread_cache=8
+tmp_table_size=256M
+wait_timeout=3600
+max_binlog_size=500M
+max_connect_errors=999999
+character-set-server=utf8
+query_cache_size=512M
+thread_cache_size=256
+myisam_max_sort_file_size=100G
+myisam_sort_buffer_size=100M
+thread_concurrency=8
+#federated
+## cau hinh log
+long_query_time=0
+slow_query_log=0
+slow_query_log_file=/var/lib/mysql/logs/slowquery.log
+general_log=0
+general_log_file=/var/lib/mysql/logs/mysqld.log
+log-bin=/var/lib/mysql/logs/binlog/mysql-bin
+relay-log = /var/lib/mysql/logs/relay-bin
+log_error=/var/lib/mysql/logs/mysqld.log
+log_warnings=0
+log_slave_updates=0
+log_queries_not_using_indexes=0
+expire_logs_days = 14
+tmpdir = /var/lib/mysql/tmp
+core-file
+
+innodb_mirrored_log_groups=1
+innodb_data_file_path = db1:2000M:autoextend
+innodb_data_home_dir = /var/lib/mysql/data/tablespace
+innodb_log_group_home_dir = /var/lib/mysql/logs/iblogs
+innodb_log_files_in_group=3
+innodb_log_file_size=128M
+innodb_log_buffer_size=8M
+innodb_flush_log_at_trx_commit=1
+innodb_buffer_pool_size=1000M
+innodb_additional_mem_pool_size=200M
+innodb_file_io_threads=4
+innodb_lock_wait_timeout=50
+innodb_file_per_table=1
+
+
+[mysqld_safe]
+log-error               =/var/lib/mysql/logs/mysqld.log
+bind_address            = 0.0.0.0
+datadir                 = /var/lib/mysql
+pid_file                = /var/lib/mysql/mysql.pid
+socket                  =/var/lib/mysql/mysql.sock
+#
+# include all files from the config directory
+#
+[mysql]
+default-character-set=utf8
+no-auto-rehash
+[client]
+port=3306
+
+!includedir /etc/my.cnf.d
+
+
+*************************** Check database and tables ***************************
+
+MariaDB [(none)]> show engines;
++--------------------+---------+----------------------------------------------------------------------------------+--------------+------+------------+
+| Engine             | Support | Comment                                                                          | Transactions | XA   | Savepoints |
++--------------------+---------+----------------------------------------------------------------------------------+--------------+------+------------+
+| MRG_MyISAM         | YES     | Collection of identical MyISAM tables                                            | NO           | NO   | NO         |
+| CSV                | YES     | Stores tables as CSV files                                                       | NO           | NO   | NO         |
+| SEQUENCE           | YES     | Generated tables filled with sequential values                                   | YES          | NO   | YES        |
+| MyISAM             | YES     | Non-transactional engine with good performance and small data footprint          | NO           | NO   | NO         |
+| MEMORY             | YES     | Hash based, stored in memory, useful for temporary tables                        | NO           | NO   | NO         |
+| InnoDB             | DEFAULT | Supports transactions, row-level locking, foreign keys and encryption for tables | YES          | YES  | YES        |
+| Aria               | YES     | Crash-safe tables with MyISAM heritage                                           | NO           | NO   | NO         |
+| PERFORMANCE_SCHEMA | YES     | Performance Schema                                                               | NO           | NO   | NO         |
++--------------------+---------+----------------------------------------------------------------------------------+--------------+------+------------+
+8 rows in set (0.00 sec)
+
+MariaDB [smartgate]>show create database smartgate;
++-----------+--------------------------------------------------------------------+
+| Database  | Create Database                                                    |
++-----------+--------------------------------------------------------------------+
+| smartgate | CREATE DATABASE `smartgate` /*!40100 DEFAULT CHARACTER SET utf8 */ |
++-----------+--------------------------------------------------------------------+
+1 row in set (0.05 sec)
+
+MariaDB [smartgate]> SHOW TABLE STATUS\G
+*************************** 1. row ***************************
+           Name: access_log
+         Engine: InnoDB
+        Version: 10
+     Row_format: Dynamic
+           Rows: 0
+ Avg_row_length: 0
+    Data_length: 16384
+Max_data_length: 0
+   Index_length: 0
+      Data_free: 0
+ Auto_increment: 1
+    Create_time: 2019-08-25 20:20:01
+    Update_time: NULL
+     Check_time: NULL
+      Collation: utf8_general_ci
+       Checksum: NULL
+ Create_options: 
+        Comment: 
+*************************** 2. row ***************************
+
+MariaDB [smartgate]> SHOW CREATE TABLE <tablename>;
+

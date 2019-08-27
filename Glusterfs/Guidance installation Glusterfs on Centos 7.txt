@@ -1,0 +1,65 @@
+1. Make a repo from ISO file of Centos
+	mkdir /media/Centos 
+	mount -t iso9660 -o loop /opt/CentOS-7-x86_64-DVD-1810.iso /media/Centos
+
+2. Install GlusterFS:
+
+cd /opt/GlusterFS/done
+
+rpm -ivh glusterfs-extra-xlators-5.5-1.el7.x86_64.rpm
+rpm -ivh python2-gluster-5.5-1.el7.x86_64.rpm
+rpm -ivh glusterfs-debuginfo-5.5-1.el7.x86_64.rpm
+rpm -ivh attr-2.4.46-13.el7.x86_64.rpm
+rpm -ivh psmisc-22.20-15.el7.x86_64.rpm
+rpm -ivh glusterfs-5.5-1.el7.x86_64.rpm
+rpm -ivh glusterfs-client-xlators-5.5-1.el7.x86_64.rpm
+rpm -ivh glusterfs-fuse-5.5-1.el7.x86_64.rpm
+rpm -ivh glusterfs-api-5.5-1.el7.x86_64.rpm
+rpm -ivh glusterfs-cli-5.5-1.el7.x86_64.rpm
+rpm -ivh glusterfs-cloudsync-plugins-5.5-1.el7.x86_64.rpm
+rpm -ivh glusterfs-debuginfo-5.5-1.el7.x86_64.rpm
+rpm -ivh python-prettytable-0.7.2-3.el7.noarch.rpm
+rpm -ivh rsync-3.1.2-4.el7.x86_64.rpm
+rpm -ivh libossp-uuid16-1.6.2-alt2.x86_64.rpm
+rpm -ivh pciutils-3.5.1-3.el7.x86_64.rpm
+rpm -ivh rdma-core-17.2-3.el7.x86_64.rpm
+rpm -ivh libtirpc-0.2.4-0.15.el7.x86_64.rpm
+rpm -ivh rpcbind-0.2.0-47.el7.x86_64.rpm
+rpm -ivh userspace-rcu-0.10.0-3.el7.x86_64.rpm
+rpm -ivh glusterfs-server-5.5-1.el7.x86_64.rpm
+rpm -ivh sqlite-devel-3.7.17-8.el7.x86_64.rpm
+rpm -ivh libuuid-2.23.2-59.el7_6.1.x86_64.rpm
+rpm -ivh libuuid-devel-2.23.2-59.el7_6.1.x86_64.rpm
+rpm -ivh glusterfs-devel-5.5-1.el7.x86_64.rpm
+rpm -ivh libattr-devel-2.4.46-13.el7.x86_64.rpm
+rpm -ivh libacl-devel-2.2.51-14.el7.x86_64.rpm
+rpm -ivh glusterfs-api-devel-5.5-1.el7.x86_64.rpm
+yum --disablerepo=\* --enablerepo=c7-media install perl
+rpm -ivh libibverbs-17.2-3.el7.x86_64.rpm
+rpm -ivh librdmacm-17.2-3.el7.x86_64.rpm
+rpm -ivh glusterfs-rdma-5.5-1.el7.x86_64.rpm
+rpm -ivh glusterfs-geo-replication-5.5-1.el7.x86_64.rpm
+yum --disablerepo=\* --enablerepo=c7-media install python-requests
+rpm -ivh glusterfs-events-5.5-1.el7.x86_64.rpm
+
+3. Check all package install at hosts:
+
+rpm -qa| grep gluster
+
+python2-gluster-5.5-1.el7.x86_64
+glusterfs-debuginfo-5.5-1.el7.x86_64
+glusterfs-client-xlators-5.5-1.el7.x86_64
+glusterfs-api-5.5-1.el7.x86_64
+glusterfs-cloudsync-plugins-5.5-1.el7.x86_64
+glusterfs-server-5.5-1.el7.x86_64
+glusterfs-devel-5.5-1.el7.x86_64
+glusterfs-rdma-5.5-1.el7.x86_64
+glusterfs-events-5.5-1.el7.x86_64
+glusterfs-libs-5.5-1.el7.x86_64
+glusterfs-extra-xlators-5.5-1.el7.x86_64
+glusterfs-5.5-1.el7.x86_64
+glusterfs-fuse-5.5-1.el7.x86_64
+glusterfs-cli-5.5-1.el7.x86_64
+glusterfs-api-devel-5.5-1.el7.x86_64
+glusterfs-geo-replication-5.5-1.el7.x86_64
+

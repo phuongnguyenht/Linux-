@@ -1,0 +1,35 @@
+# Install Redis-Cluster + Load-blancing 3 node on centos 7
+Environment
+1	- haproxy
+2	- redis
+3	- redis-sentinel
+
+1. Cài đặt:
+yum -y install epel-release
+yum install haproxy -y
+
+yum install keepalived -y
+yum install redis -y
+
+2. Setup
+
+mkdir /var/lib/redis-sentinel
+chown redis /etc/redis.conf
+chown redis /etc/redis-sentinel.conf
+
+Centos 6
+chkconfig redis on ; chkconfig redis-sentinel on
+service redis start ; service redis-sentinel start
+
+Centos 7
+systemctl start redis
+systemctl start redis-sentinel
+
+systemctl enable redis
+systemctl enable redis-sentinel
+
+
+cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.origin
+
+vi /etc/haproxy/haproxy.cfg
+

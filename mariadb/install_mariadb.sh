@@ -21,3 +21,5 @@ gpgcheck=1" > "$file"
 	systemctl status mariadb
 	mysql_secure_installation
 fi
+
+galera_new_cluster
