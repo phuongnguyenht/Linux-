@@ -1,9 +1,13 @@
 Server 01 MASTER
 Server 02 BACKUP
+Can cai them killall
+yum install psmisc -y
+
+Check script 2s check 1 lan. TH nginx tren keepalived master down thi no se chuyen IP VIP sang node con lai 
 
 Server 01
 vrrp_script chk_nginx {
-  script "killall -0 nginx"
+  script "/etc/keepalived/keepalived01.sh"
   interval 2
   weight 2
 }
@@ -22,7 +26,7 @@ vrrp_instance VI_1 {
 }
 
 vrrp_script chk_nginx {
-  script "killall -0 nginx"
+  script "/etc/keepalived/keepalived01.sh"
   interval 2
   weight 2
 }
@@ -40,3 +44,14 @@ vrrp_instance VI_1 {
     chk_nginx
   }
 }
+
+
+vi /etc/keepalived/keepalived01.sh
+#!/bin/bash
+
+killall -0 nginx
+if [ $? -gt 0 ]
+then
+        echo `date '+%Y-%m-%d %T'` ":nginx not running " >> /etc/keepalived/nginx.log
+        exit 1
+fi
