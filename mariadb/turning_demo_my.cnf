@@ -150,3 +150,7 @@ Max_data_length: 0
 
 MariaDB [smartgate]> SHOW CREATE TABLE <tablename>;
 
+-----------------------Meaning--------------------------------
+binlog-do-db makes the master write only statements for the specified DB into its binary log.
+replicate-do-db makes the slave just read statements from the relay log, that are for the specified DB.
+replicate-do-db has no effect on the master, since there is no relay log to read from.

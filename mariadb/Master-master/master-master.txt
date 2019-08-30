@@ -1,33 +1,199 @@
 Thông tin:
 192.168.12.132	app01
 192.168.12.134	app02
-database 		Campaign
+database 		smartgate
+
+mkdir -p /var/lib/mysql/data/tablespace
+mkdir -p /var/lib/mysql/tmp
+mkdir -p /var/lib/mysql/logs/iblogs
+mkdir -p /var/lib/mysql/logs/binlog
+cd /var/lib && chown -R mysql.mysql mysql
 
 app01
-# bind-address          = 127.0.0.1
-server-id               = 61
-report_host             = app01
-log_bin                 = /var/lib/mysql/mariadb-bin
-log_bin_index           = /var/lib/mysql/mariadb-bin.index
-relay_log               = /var/lib/mysql/relay-bin
-relay_log_index         = /var/lib/mysql/relay-bin.index
-# replicate-do-db       = testdb
-binlog-do-db			= Campaign
+[mysqld]
+datadir                 =/var/lib/mysql
+socket                  =/var/lib/mysql/mysql.sock
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links          =0
+#bind_address            = 0.0.0.0
+pid_file                = /var/lib/mysql/mysql.pid
+
+user=mysql
+
+key_buffer_size=384M
+max_allowed_packet=16777216
+max_connections=5000
+max_user_connections=2000
+read_buffer_size=8M
+sort_buffer_size=512K
+sort_buffer=8M
+read_buffer_size=156K
+read_rnd_buffer_size=512K
+table_cache=4096
+thread_cache=8
+tmp_table_size=256M
+wait_timeout=3600
+max_binlog_size=500M
+max_connect_errors=999999
+character-set-server=utf8
+query_cache_size=512M
+thread_cache_size=256
+myisam_max_sort_file_size=100G
+myisam_sort_buffer_size=100M
+thread_concurrency=8
+#federated
+## cau hinh log
+long_query_time=0
+slow_query_log=0
+slow_query_log_file=/var/lib/mysql/logs/slowquery.log
+general_log=0
+general_log_file=/var/lib/mysql/logs/mysqld.log
+# begin cau hinh master master
+server-id=61
+#report_host=app01
+log-bin=/var/lib/mysql/logs/binlog/mysql-bin
+log-bin-index=/var/lib/mysql/logs/binlog/mysql-bin.index
+relay-log=/var/lib/mysql/logs/relay-bin
+relay_log_index=/var/lib/mysql/logs/relay-bin.index
+# replicate-do-db = testdb
+# binlog-do-db=database name
+binlog-do-db=smartgate
 auto_increment_increment = 2
 auto_increment_offset = 1
+# end cau hinh master master
+log_error=/var/lib/mysql/logs/mysqld.log
+log_warnings=0
+log_slave_updates=0
+log_queries_not_using_indexes=0
+expire_logs_days = 14
+tmpdir = /var/lib/mysql/tmp
+core-file
+
+innodb_mirrored_log_groups=1
+innodb_data_file_path = db1:2000M:autoextend
+innodb_data_home_dir = /var/lib/mysql/data/tablespace
+innodb_log_group_home_dir = /var/lib/mysql/logs/iblogs
+innodb_log_files_in_group=3
+innodb_log_file_size=128M
+innodb_log_buffer_size=8M
+innodb_flush_log_at_trx_commit=1
+innodb_buffer_pool_size=1000M
+innodb_additional_mem_pool_size=200M
+innodb_file_io_threads=4
+innodb_lock_wait_timeout=50
+innodb_file_per_table=1
+
+
+[mysqld_safe]
+log-error               =/var/lib/mysql/logs/mysqld.log
+bind_address            = 0.0.0.0
+datadir                 = /var/lib/mysql
+pid_file                = /var/lib/mysql/mysql.pid
+socket                  =/var/lib/mysql/mysql.sock
+#
+# include all files from the config directory
+#
+[mysql]
+default-character-set=utf8
+no-auto-rehash
+[client]
+port=3306
+
+!includedir /etc/my.cnf.d
+
 
 app02
-# bind-address          = 127.0.0.1
-server-id               = 62
-report_host             = app02
-log_bin                 = /var/lib/mysql/mariadb-bin
-log_bin_index           = /var/lib/mysql/mariadb-bin.index
-relay_log               = /var/lib/mysql/relay-bin
-relay_log_index         = /var/lib/mysql/relay-bin.index
-# replicate-do-db       = testdb
-binlog-do-db			= Campaign
+[mysqld]
+datadir                 =/var/lib/mysql
+socket                  =/var/lib/mysql/mysql.sock
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links          =0
+#bind_address            = 0.0.0.0
+pid_file                = /var/lib/mysql/mysql.pid
+
+user=mysql
+
+key_buffer_size=384M
+max_allowed_packet=16777216
+max_connections=5000
+max_user_connections=2000
+read_buffer_size=8M
+sort_buffer_size=512K
+sort_buffer=8M
+read_buffer_size=156K
+read_rnd_buffer_size=512K
+table_cache=4096
+thread_cache=8
+tmp_table_size=256M
+wait_timeout=3600
+max_binlog_size=500M
+max_connect_errors=999999
+character-set-server=utf8
+query_cache_size=512M
+thread_cache_size=256
+myisam_max_sort_file_size=100G
+myisam_sort_buffer_size=100M
+thread_concurrency=8
+#federated
+## cau hinh log
+long_query_time=0
+slow_query_log=0
+slow_query_log_file=/var/lib/mysql/logs/slowquery.log
+general_log=0
+general_log_file=/var/lib/mysql/logs/mysqld.log
+# begin cau hinh master master
+server-id=62
+#report_host=app02
+log-bin=/var/lib/mysql/logs/binlog/mysql-bin
+log-bin-index=/var/lib/mysql/logs/binlog/mysql-bin.index
+relay-log=/var/lib/mysql/logs/relay-bin
+relay_log_index=/var/lib/mysql/logs/relay-bin.index
+# replicate-do-db = testdb
+# binlog-do-db=database name
+binlog-do-db=smartgate
 auto_increment_increment = 2
 auto_increment_offset = 2
+# end cau hinh master master
+log_error=/var/lib/mysql/logs/mysqld.log
+log_warnings=0
+log_slave_updates=0
+log_queries_not_using_indexes=0
+expire_logs_days = 14
+tmpdir = /var/lib/mysql/tmp
+core-file
+
+innodb_mirrored_log_groups=1
+innodb_data_file_path = db1:2000M:autoextend
+innodb_data_home_dir = /var/lib/mysql/data/tablespace
+innodb_log_group_home_dir = /var/lib/mysql/logs/iblogs
+innodb_log_files_in_group=3
+innodb_log_file_size=128M
+innodb_log_buffer_size=8M
+innodb_flush_log_at_trx_commit=1
+innodb_buffer_pool_size=1000M
+innodb_additional_mem_pool_size=200M
+innodb_file_io_threads=4
+innodb_lock_wait_timeout=50
+innodb_file_per_table=1
+
+
+[mysqld_safe]
+log-error               =/var/lib/mysql/logs/mysqld.log
+bind_address            = 0.0.0.0
+datadir                 = /var/lib/mysql
+pid_file                = /var/lib/mysql/mysql.pid
+socket                  =/var/lib/mysql/mysql.sock
+#
+# include all files from the config directory
+#
+[mysql]
+default-character-set=utf8
+no-auto-rehash
+[client]
+port=3306
+
+!includedir /etc/my.cnf.d
+
 
 app01
 MariaDB [(none)]> create user 'replusr'@'%' identified by 'P4SSWORD';
@@ -84,3 +250,188 @@ MariaDB [(none)]> use Campaign;
 MariaDB [(none)]> UNLOCK TABLES;;
 MariaDB [(none)]> exit;
 CREATE TABLE users (id INT AUTO_INCREMENT, name VARCHAR(30),datum TIMESTAMP DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(id));
+
+#################################### Kiểm tra ####################################
+systemctl status mariadb
+â— mariadb.service - MariaDB 10.1.40 database server
+   Loaded: loaded (/usr/lib/systemd/system/mariadb.service; enabled; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/mariadb.service.d
+           â””â”€migrated-from-my.cnf-settings.conf
+   Active: active (running) since Fri 2019-08-30 12:15:59 +07; 16min ago
+     Docs: man:mysqld(8)
+           https://mariadb.com/kb/en/library/systemd/
+  Process: 30272 ExecStartPost=/bin/sh -c systemctl unset-environment _WSREP_START_POSITION (code=exited, status=0/SUCCESS)
+  Process: 30049 ExecStartPre=/bin/sh -c [ ! -e /usr/bin/galera_recovery ] && VAR= ||   VAR=`/usr/bin/galera_recovery`; [ $? -eq 0 ]   && systemctl set-environment _WSREP_START_POSITION=$VAR || exit 1 (code=exited, status=0/SUCCESS)
+  Process: 30047 ExecStartPre=/bin/sh -c systemctl unset-environment _WSREP_START_POSITION (code=exited, status=0/SUCCESS)
+ Main PID: 30239 (mysqld)
+   Status: "Taking your SQL requests now..."
+   CGroup: /system.slice/mariadb.service
+           â””â”€30239 /usr/sbin/mysqld
+
+Aug 30 12:15:58 app01 systemd[1]: Starting MariaDB 10.1.40 database server...
+Aug 30 12:15:59 app01 mysqld[30239]: 2019-08-30 12:15:59 140612452968704 [Note] Using unique option prefix 'sort_bu...stead.
+Aug 30 12:15:59 app01 mysqld[30239]: 2019-08-30 12:15:59 140612452968704 [Note] Using unique option prefix 'thread_...stead.
+Aug 30 12:15:59 app01 mysqld[30239]: 2019-08-30 12:15:59 140612452968704 [Warning] 'THREAD_CONCURRENCY' is deprecat...lease.
+Aug 30 12:15:59 app01 mysqld[30239]: 2019-08-30 12:15:59 140612452968704 [Note] /usr/sbin/mysqld (mysqld 10.1.40-Ma...39 ...
+Aug 30 12:15:59 app01 systemd[1]: Started MariaDB 10.1.40 database server.
+Hint: Some lines were ellipsized, use -l to show in full.
+
+Insert, Update dữ liệu vào database opencps trên Master.
+Show Master Status và Show Slave Status\G
+Kiểm tra các thông số Master_log_file, Read_Master_Log_Pos, nếu giống nhau thì hệ thống hoạt động tốt.
+Kiểm tra trên Slave xem các Insert, Update chạy trên Master được pull về Slave hay chưa.
+
+MariaDB [smartgate]> show binary logs;
++------------------+-----------+
+| Log_name         | File_size |
++------------------+-----------+
+| mysql-bin.000004 |       332 |
+| mysql-bin.000005 |  57917118 |
++------------------+-----------+
+2 rows in set (0.00 sec)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++FIX ERRROR ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[ERROR] Slave I/O: Unable to load replication GTID slave state from mysql.gtid_slave_pos: Table 'mysql.gtid_slave_pos' doesn't exist, Internal MariaDB error code: 1146
+
+
+So I tried a `mysql_upgrad` which told me to try --force as it looked already up to date, so I tried --force, which gave:
+mysql.gtid_slave_pos
+Error : Table 'mysql.gtid_slave_pos' doesn't exist in engine
+status : Operation failed
+
+I checked in the db/mysql folder and found that the .frm and .ibd is aready existing.
+gtid_slave_pos.frm
+gtid_slave_pos.ibd
+
+I just removed the files and recreated the table with MyISAM engine, which solved the issue.
+
+STEPS:
+
+Go to the mysql folder ( default path in column store /usr/local/mariadb/columnstore/mysql/db/mysql )
+drop the following files:
+
+find /var/lib/mysql/ -name "gtid_slave_pos.ibd"
+rm gtid_slave_pos.frm
+rm gtid_slave_pos.ibd
+
+mysql -uroot -p -s mysql
+
+MariaDB [mysql]> show slave status \G
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 156.23.25.15
+                  Master_User: mysqlrepli
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000465
+          Read_Master_Log_Pos: 809269330
+               Relay_Log_File: relay.000190
+                Relay_Log_Pos: 790004371
+        Relay_Master_Log_File: mysql-bin.000465
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 1932
+                   Last_Error: Unable to load replication GTID slave state from mysql.gtid_slave_pos: Table 'mysql.gtid_slave_pos' doesn't exist in engine
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 809269330
+              Relay_Log_Space: 790004710
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 1932
+               Last_SQL_Error: Unable to load replication GTID slave state from mysql.gtid_slave_pos: Table 'mysql.gtid_slave_pos' doesn't exist in engine
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 1
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+                   Using_Gtid: No
+                  Gtid_IO_Pos:
+      Replicate_Do_Domain_Ids:
+  Replicate_Ignore_Domain_Ids:
+                Parallel_Mode: conservative
+1 row in set (0.00 sec)
+
+MariaDB [(none)]> use mysql;
+MariaDB [mysql]> CREATE TABLE `gtid_slave_pos` (`domain_id` int(10) unsigned NOT NULL,`sub_id` bigint(20) unsigned NOT NULL,`server_id` int(10) unsigned NOT NULL,`seq_no` bigint(20) unsigned NOT NULL,PRIMARY KEY (`domain_id`,`sub_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Replication slave GTID state';
+Query OK, 0 rows affected (0.01 sec)
+
+
+MariaDB [mysql]> stop slave;
+Query OK, 0 rows affected (0.03 sec)
+
+MariaDB [mysql]> start slave;
+Query OK, 0 rows affected (0.00 sec)
+
+show slave status \G
+
+MariaDB [mysql]> show slave status \G
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 156.23.25.15
+                  Master_User: mysqlrepli
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000465
+          Read_Master_Log_Pos: 809289283
+               Relay_Log_File: relay.000191
+                Relay_Log_Pos: 15483
+        Relay_Master_Log_File: mysql-bin.000465
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 809289283
+              Relay_Log_Space: 790022182
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 1
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+                   Using_Gtid: No
+                  Gtid_IO_Pos:
+      Replicate_Do_Domain_Ids:
+  Replicate_Ignore_Domain_Ids:
+                Parallel_Mode: conservative
+1 row in set (0.00 sec)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+

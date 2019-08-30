@@ -74,9 +74,3 @@ After step 4, the installation will be completed. The last step will be to run m
 5) mysql_secure_installation
 
 
-Fatal error: Can't open and lock privilege tables: Table 'mysql.user' doesn't exist
-Centos 7
-Fix:
-mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
-[root@app01 my.cnf.d]# systemctl start mariadb
-[root@app01 my.cnf.d]# mysql_secure_installation

@@ -43,3 +43,13 @@ MariaDB [(none)]> show status like 'wsrep_incoming_addresses';
 | wsrep_incoming_addresses | 192.168.12.132:3306,192.168.12.134:3306,192.168.12.131:3306 |
 +--------------------------+-------------------------------------------------------------+
 1 row in set (0.00 sec)
+
+Fatal error: Can't open and lock privilege tables: Table 'mysql.user' doesn't exist
+Centos 7
+Fix:
+mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+[root@app01 my.cnf.d]# systemctl start mariadb
+[root@app01 my.cnf.d]# mysql_secure_installation
+
+I have this error, but in my case galera_new_cluster not works.
+problem solved by editing /var/lib/mysql/grastate.dat file and change safe_to_bootstrap to 1.

@@ -1,0 +1,30 @@
+#!/bin/sh
+gioalert=`date +"%r %d/%m/%Y"`
+domain=DauGia_VinaPhone
+dbhost=10.16.0.1
+dbuser=alerts2vms
+dbpass=alerts2vms1122334455
+dbschema=smsgw6x54
+####################
+dbuser1=checkdongbo
+dbhost1=localhost
+dbpass1=3ebdgBgd1ol8dun
+
+Slave_IO_Running=`mysql -ucheckdongbo -h127.0.0.1 -P3308 -p3ebdgBgd1ol8dun -Bse "show slave status\G" | grep Slave_IO_Running | awk '{ print $2 }'`
+Slave_SQL_Running=`mysql -ucheckdongbo  -h127.0.0.1 -P3308 -p3ebdgBgd1ol8dun -Bse "show slave status\G" | grep Slave_SQL_Running | awk '{ print $2 }'`
+
+if [ $Slave_SQL_Running == 'No' ] ; then
+RESULT=`/usr/bin/mysql -u $dbuser -h $dbhost -p$dbpass <<SQL
+use $dbschema
+insert into msg_alerter(domain,threshold,issue,alertmsg,current_threshold,alert_status,level,groupname) value ('$domain',1,'DB','DB_Slaver 10.22.0.82 3308 DauGia VinaPhone  mat dong bo voi DB_Master 10.16.0.108 tai $gioalert, vao xu ly ngay','1','1','serious','admin');
+quit
+SQL`
+fi
+
+if [ $Slave_IO_Running == 'No' ] ; then
+RESULT=`/usr/bin/mysql -u $dbuser -h $dbhost -p$dbpass <<SQL
+use $dbschema
+insert into msg_alerter(domain,threshold,issue,alertmsg,current_threshold,alert_status,level,groupname) value ('$domain',1,'DB','DB_Slaver 10.22.0.82 3308 DauGia VinaPhone  mat dong bo voi DB_Master 10.16.0.108 tai $gioalert, vao xu ly ngay','1','1','serious','admin');
+quit
+SQL`
+fi
