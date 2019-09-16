@@ -73,4 +73,19 @@ After step 4, the installation will be completed. The last step will be to run m
 
 5) mysql_secure_installation
 
+-----------------TH install lỗi:------------------------
+ rpm -ivh MariaDB-10.2.9-centos7-x86_64-common.rpm
+error: Failed dependencies:
+        MariaDB-compat is needed by MariaDB-common-10.2.9-1.el7.centos.x86_64
+[root@app03 opt]# rpm -ivh MariaDB-10.2.9-centos7-x86_64-compat.rpm
+error: Failed dependencies:
+        MariaDB-common is needed by MariaDB-compat-10.2.9-1.el7.centos.x86_64
+
+Yes; installing both together:
+
+[root@app03 opt]# rpm -ivh MariaDB-10.2.9-centos7-x86_64-common.rpm  MariaDB-102.9-centos7-x86_64-compat.rpm
+Preparing...                          ################################# [100%]
+Updating / installing...
+   1:MariaDB-compat-10.2.9-1.el7.cento################################# [ 50%]
+   2:MariaDB-common-10.2.9-1.el7.cento################################# [100%]
 
