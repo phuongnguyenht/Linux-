@@ -22,6 +22,17 @@ This will make rsyslog listen on UDP port 514 for all IP addresses. Optionally y
 
 $UDPServerAddress 127.0.0.1
 ```
+Or create new file for haproxy on folder: /etc/rsyslog.d/haproxy.conf
+```
+vi /etc/rsyslog.d/haproxy.conf
+
+# Enable UDP port 514 to listen to incoming log messages from haproxy
+$ModLoad imudp
+$UDPServerRun 514
+$UDPServerAddress 127.0.0.1
+local2.*    /var/log/haproxy/haproxy.log
+
+```
 Now create a /etc/rsyslog.d/haproxy.conf file containing:
 
 ```
