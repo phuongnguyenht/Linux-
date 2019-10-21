@@ -18,7 +18,7 @@ Node3: 192.168.12.131 (Slave)
 ```
 
 Ta sử dụng cấu hình file /etc/sysctl.conf trên 3 node như sau:
-
+```
 # sysctl settings are defined through files in
 # /usr/lib/sysctl.d/, /run/sysctl.d/, and /etc/sysctl.d/.
 #
@@ -74,3 +74,4 @@ fs.file-max = 9400000
 
 #Fixing CVE-2016-5696 vulnerability
 net.ipv4.tcp_challenge_ack_limit = 999999999
+```
