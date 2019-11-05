@@ -40,13 +40,24 @@ http://X.Y.Z.T:8161/admin/
 Account: admin/admin 
 ```
 
-3. Install zookeeper
+3. Install and configuration zookeeper
 ```
 wget https://archive.apache.org/dist/zookeeper/zookeeper-3.4.8/zookeeper-3.4.8.tar.gz
 mkdir –p /var/lib/zookeeper/
 tar -zxvf zookeeper-3.4.8.tar.gz -C /opt/
 cd /opt/ && mv zookeeper-3.4.8 zookeeper
 cp /opt/zookeeper/conf/zoo_sample.cfg /opt/zookeeper/conf/zoo.cfg
+vi /opt/zookeeper/conf/zoo.cfg
+tickTime=2000
+initLimit=5
+syncLimit=2
+dataDir=/var/lib/zookeeper
+clientPort=2182
+maxClientCnxns=60
+server.1=IP01:2888:3888
+server.2=IP02:2888:3888
+server.3=IP03:2888:3888
+
 On each server
 Server 01:
 echo 1 > /var/lib/zookeeper/myid
@@ -67,6 +78,121 @@ User=root
 Group=root
 [Install]
 WantedBy=multi-user.target
+```
+4. Configuration activemq
 
+* Server 01: vi /opt/activemq/conf/activemq.xml
+```
+- Comment kahaDB
+	<!--	
+		<kahaDB directory="${activemq.data}/kahadb"/>
+	-->
+- Add more LevelDB section:
+<persistenceAdapter>
+		<!--	
+		<kahaDB directory="${activemq.data}/kahadb"/>
+		-->
+		
+		<replicatedLevelDB
+            	directory="${activemq.data}/leveldb"
+        	replicas="3"
+                bind="tcp://0.0.0.0:0"
+                zkAddress="IP01:2182,IP01:2182,IP01:2182"
+                zkPassword="4Campaign"
+                hostname="IP01"
+                sync="local_disk"
+
+		/>
+		
+        </persistenceAdapter>
+```
+* Server 02: vi /opt/activemq/conf/activemq.xml
+```
+- Comment kahaDB
+	<!--	
+		<kahaDB directory="${activemq.data}/kahadb"/>
+	-->
+- Add more LevelDB section:
+<persistenceAdapter>
+		<!--	
+		<kahaDB directory="${activemq.data}/kahadb"/>
+		-->
+		
+		<replicatedLevelDB
+            	directory="${activemq.data}/leveldb"
+        	replicas="3"
+                bind="tcp://0.0.0.0:0"
+                zkAddress="IP01:2182,IP01:2182,IP01:2182"
+                zkPassword="4Campaign"
+                hostname="IP02"
+                sync="local_disk"
+
+		/>
+		
+        </persistenceAdapter>
+```
+* Server 03: vi /opt/activemq/conf/activemq.xml
+```
+- Comment kahaDB
+	<!--	
+		<kahaDB directory="${activemq.data}/kahadb"/>
+	-->
+- Add more LevelDB section:
+<persistenceAdapter>
+		<!--	
+		<kahaDB directory="${activemq.data}/kahadb"/>
+		-->
+		
+		<replicatedLevelDB
+            	directory="${activemq.data}/leveldb"
+        	replicas="3"
+                bind="tcp://0.0.0.0:0"
+                zkAddress="IP01:2182,IP01:2182,IP01:2182"
+                zkPassword="4Campaign"
+                hostname="IP03"
+                sync="local_disk"
+
+		/>
+		
+        </persistenceAdapter>
+```
+5. Configuration mirrow to another queue name
+```
+	<!--
+        Modify ActiveMQ mirrow by Phuongnt
+   	 -->
+	<destinationInterceptors>
+        <virtualDestinationInterceptor>
+            <virtualDestinations>
+                <compositeQueue name="CALLEVENT" forwardOnly="false">
+					<forwardTo>
+						<queue physicalName="Queue name01"/>
+						<queue physicalName="Queue name02"/>
+					 </forwardTo>
+                  </compositeQueue>
+            </virtualDestinations>
+        </virtualDestinationInterceptor>
+    </destinationInterceptors>
+	<!--
+        End Modify ActiveMQ mirrow by Phuongnt
+   	 -->
 
 ```
+6. Add config to Haproxy
+```
+listen activemq_cluster *:61620
+  #balance  source
+  #option  tcpka
+  #option  httpchk
+  #option  tcplog
+  mode tcp
+  option forceclose
+  option tcp-check
+  server activemq-app01 10.144.40.66:61616 backup check inter 1s rise 2 fall 5
+  server activemq-app02 10.144.40.67:61616 check inter 1s rise 2 fall 5
+  server activemq-app03 10.144.40.68:61616 backup check inter 1s rise 2 fall 5
+```
+7. Example 
+* Server 01: 10.144.40.66
+* Server 02: 10.144.40.67
+* Server 03: 10.144.40.68
