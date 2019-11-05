@@ -73,3 +73,7 @@ echo -e ' \t' "So luong nguon: $(dmidecode -t 39 | grep "System Power Supply" | 
 
 echo "-------------Show PCI devices------------------"
 lspci -tv
+
+
+echo "-------------Monitoring section------------------"
+echo " Su dung lm-sensors va hddtemp ipmitool "
