@@ -78,6 +78,8 @@ User=root
 Group=root
 [Install]
 WantedBy=multi-user.target
+
+- Start/ Stop service: cd /opt/zookeeper/bin && ./zkServer.sh start
 ```
 4. Configuration activemq
 
