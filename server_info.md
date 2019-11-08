@@ -129,3 +129,16 @@ System Power Supply
         Hot Replaceable: Yes
 ```
 -----------------------------------------Check disk-------------------
+```
+```
+
+-----------------------------------------Check process using most memory-------------------
+```
+This will show you top 10 process that using the most memory:
+
+ps aux --sort=-%mem | awk 'NR<=10{print $0}'
+
+As the same way check with CPU
+
+ps aux --sort=-%cpu | awk 'NR<=10{print $0}'
+```
