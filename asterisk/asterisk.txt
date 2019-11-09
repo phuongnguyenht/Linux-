@@ -1,0 +1,76 @@
+Preparation of the system.
+
+Disabled SELinux
+sed -i s/SELINUX=enforcing/SELINUX=disabled/g /etc/selinux/config
+Dependencies
+
+ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+ 
+ yum install -y kernel-devel kernel-headers
+ 
+yum install -y e2fsprogs-devel  keyutils-libs-devel krb5-devel libogg \
+libselinux-devel libsepol-devel libxml2-devel libtiff-devel gmp php-pear \
+php php-gd php-mysql php-pdo php-mbstring ncurses-devel \
+mysql-connector-odbc unixODBC unixODBC-devel \
+audiofile-devel libogg-devel openssl-devel zlib-devel  \
+perl-DateManip sox git wget net-tools psmisc
+
+
+yum install -y gcc gcc-c++ make gnutls-devel \
+libxml2-devel ncurses-devel subversion doxygen \
+texinfo curl-devel net-snmp-devel neon-devel  \
+uuid-devel libuuid-devel sqlite-devel sqlite \
+speex-devel gsm-devel libtool libtool-ltdl libtool-ltdl-devel \
+libsrtp libsrtp-devel xmlstarlet
+
+Installing MySQL (mariadb)
+
+yum -y install mariadb-server mariadb mariadb-devel
+systemctl start mariadb.service
+systemctl enable mariadb.service
+mysql_secure_installation
+
+Step 2: Download and Install Jansson
+Jansson is a C library for encoding, decoding and manipulating JSON data. Download and install it on CentOS 7 server by running the commands below:
+
+cd /usr/src
+git clone https://github.com/akheron/jansson.git
+cd jansson
+autoreconf  -i
+./configure --prefix=/usr/
+make && make install
+
+Step 3: Download and Install PJSIP
+PJSIP is a free and open source multimedia communication library written in C language implementing standard based protocols such as SIP, SDP, RTP, STUN, TURN, and ICE. Clone the project from Github, then compile and install.
+
+cd /usr/src
+git clone https://github.com/pjsip/pjproject.git
+cd pjproject
+CFLAGS='-DPJ_HAS_IPV6=1' ./configure --prefix=/usr --enable-shared --disable-sound --disable-resample --disable-video --disable-opencore-amr --libdir=/usr/lib64
+make dep
+make
+make install
+
+Step 4: Download and Install Asterisk
+
+cd /usr/src
+wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-15-current.tar.gz
+tar xvfz asterisk-15-current.tar.gz
+rm -f asterisk-15-current.tar.gz
+cd asterisk-*
+contrib/scripts/get_mp3_source.sh
+contrib/scripts/install_prereq install
+./configure --libdir=/usr/lib64 --with-pjproject-bundled --with-crypto --with-ssl=ssl --with-srtp
+
+Step 5: Set Asterisk menu options
+
+make menuselect
+
+contrib/scripts/get_mp3_source.sh
+To start building and installation of Asterisk with selected modules, run the commands.
+
+make
+make install
+make samples
+make config
+ldconfig
